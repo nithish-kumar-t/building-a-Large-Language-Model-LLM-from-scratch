@@ -12,7 +12,10 @@ lazy val root = project
       "org.scalameta" %% "munit" % "1.0.0" % Test,
       "org.apache.hadoop" % "hadoop-common" % "3.4.0",
       "org.apache.hadoop" % "hadoop-mapreduce-client-core" % "3.4.0",
-      "org.apache.hadoop" % "hadoop-mapreduce-client-jobclient" % "3.4.0"
+      "org.apache.hadoop" % "hadoop-mapreduce-client-jobclient" % "3.4.0",
+      "com.knuddels" % "jtokkit" % "0.6.1"
+
+//      "com.jtokkit" % "jtokkit" % "1"
     ),
     assemblyMergeStrategy in assembly := {
       case PathList("META-INF", xs @ _*) => MergeStrategy.discard
