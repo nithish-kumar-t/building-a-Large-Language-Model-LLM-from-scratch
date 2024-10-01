@@ -1,3 +1,4 @@
+import com.config.ConfigLoader
 import org.apache.hadoop.fs.Path
 import org.apache.hadoop.conf.*
 import org.apache.hadoop.io.*
@@ -7,7 +8,9 @@ import org.apache.hadoop.mapred.*
 import java.io.IOException
 import java.util
 import scala.jdk.CollectionConverters.*
+import com.trainingLLM.Constants.*
 
+import com.config.ConfigLoader
 
 object MyMapReduceJob:
   class Map extends MapReduceBase with Mapper[LongWritable, Text, Text, IntWritable]:
@@ -30,9 +33,9 @@ object MyMapReduceJob:
   @main def runMapReduce(inputPath: String, outputPath: String): RunningJob =
     val conf: JobConf = new JobConf(this.getClass)
     conf.setJobName("WordCount")
-    conf.set("fs.defaultFS", "hdfs://localhost:9000")
-    conf.set("mapreduce.job.maps", "1")
-    conf.set("mapreduce.job.reduces", "1")
+    conf.set(HDFS_URL, ConfigLoader.getConfig(HADOOP_HDFS_URL))
+    conf.set("mapreduce.job.maps", ConfigLoader.getConfig(HADOOP_MAX_SPLIT_SIZE_PARAM))
+    conf.set("mapreduce.job.reduces", ConfigLoader.getConfig(HADOOP_MAP_REDUCE_JOB_REDUCERS))
     conf.setOutputKeyClass(classOf[Text])
     conf.setOutputValueClass(classOf[IntWritable])
     conf.setMapperClass(classOf[Map])

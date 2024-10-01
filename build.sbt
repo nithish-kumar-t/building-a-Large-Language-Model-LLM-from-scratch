@@ -13,7 +13,8 @@ lazy val root = project
       "org.apache.hadoop" % "hadoop-common" % "3.4.0",
       "org.apache.hadoop" % "hadoop-mapreduce-client-core" % "3.4.0",
       "org.apache.hadoop" % "hadoop-mapreduce-client-jobclient" % "3.4.0",
-      "com.knuddels" % "jtokkit" % "0.6.1"
+      "com.knuddels" % "jtokkit" % "0.6.1",
+      "com.typesafe" % "config" % "1.4.3"
 
 //      "com.jtokkit" % "jtokkit" % "1"
     ),
