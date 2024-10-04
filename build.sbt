@@ -1,4 +1,4 @@
-val scala3Version = "3.5.0"
+val scala3Version = "2.13.12"
 
 lazy val root = project
   .in(file("."))
@@ -10,20 +10,35 @@ lazy val root = project
 
     libraryDependencies ++= Seq(
       "org.scalameta" %% "munit" % "1.0.0" % Test,
-      "org.apache.hadoop" % "hadoop-common" % "3.4.0",
-      "org.apache.hadoop" % "hadoop-mapreduce-client-core" % "3.4.0",
-      "org.apache.hadoop" % "hadoop-mapreduce-client-jobclient" % "3.4.0",
+      "org.apache.hadoop" % "hadoop-common" % "3.3.4",
+      "org.apache.hadoop" % "hadoop-mapreduce-client-core" % "3.3.4",
+      "org.apache.hadoop" % "hadoop-mapreduce-client-jobclient" % "3.3.4",
       "com.knuddels" % "jtokkit" % "0.6.1",
-      "com.typesafe" % "config" % "1.4.3"
-
-//      "com.jtokkit" % "jtokkit" % "1"
+      "com.typesafe" % "config" % "1.4.3",
+      "org.deeplearning4j" % "deeplearning4j-core" % "1.0.0-M2.1", // Latest version as of now
+      "org.deeplearning4j" % "deeplearning4j-nlp" % "1.0.0-M2.1", // NLP support
+      "org.nd4j" % "nd4j-native-platform" % "1.0.0-M2.1", // classifier "macosx-aarch64", // For M1/M2/M3 chips
+      "org.slf4j" % "slf4j-simple" % "2.0.13", // Optional logging
+      "org.scalatest" %% "scalatest" % "3.2.14" % Test,
+      "junit" % "junit" % "4.13.2" % Test
     ),
-    assemblyMergeStrategy in assembly := {
-      case PathList("META-INF", xs @ _*) => MergeStrategy.discard
-      case x => MergeStrategy.first
-    }
 
+    assembly / assemblyMergeStrategy := {
+      case PathList("META-INF", xs @ _*) =>
+        xs match {
+          case "MANIFEST.MF" :: Nil =>   MergeStrategy.discard
+          case "services" ::_       =>   MergeStrategy.concat
+          case _                    =>   MergeStrategy.discard
+        }
+      case "reference.conf"  => MergeStrategy.concat
+      case x if x.endsWith(".proto") => MergeStrategy.rename
+      case x if x.contains("hadoop") => MergeStrategy.first
+      case  _ => MergeStrategy.first
+    }
   )
+
+
+resolvers += "Conjars Repo" at "https://conjars.org/repo"
 
 //val jarName = "MapReduce.jar"
 //assembly / assemblyJarName := jarName
