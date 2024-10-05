@@ -8,7 +8,6 @@ import org.scalatest.matchers.must.Matchers
 import java.nio.file.{Files, Paths}
 
 class BaseMrTest extends AnyFlatSpec with Matchers with BeforeAndAfter{
-  JobConfigurationHelper.env = Environment.test
   val directoryPath = "/Users/tnithish/Learning/cs-401/building-a-Large-Language-Model-LLM-from-scratch/src/main/resources/output/" // Replace with your directory path
   val directory = Paths.get(directoryPath)
 

@@ -32,7 +32,7 @@ object JobConfigurationHelper {
         FileOutputFormat.setOutputPath(conf, new Path(ConfigLoader.getConfig("test.outputPath")+outFile))
       }
       case Environment.cloud => {
-        conf.set(HDFS_URL, ConfigLoader.getConfig("cloud.fs.defaultFS"))
+//        conf.set(HDFS_URL, ConfigLoader.getConfig("cloud.fs.defaultFS"))
         conf.set(MAX_SPLIT_SIZE_PARAM, ConfigLoader.getConfig("cloud.mapreduce.input.fileinputformat.split.maxsize"))
         conf.set(MAP_REDUCE_JOB_REDUCERS, ConfigLoader.getConfig("cloud.mapreduce.job.reduces"))
         FileInputFormat.setInputPaths(conf, new Path(ConfigLoader.getConfig("cloud.inputPath")))

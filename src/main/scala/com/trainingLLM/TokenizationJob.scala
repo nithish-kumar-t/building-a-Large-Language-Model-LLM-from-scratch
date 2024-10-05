@@ -39,13 +39,15 @@ object TokenizationJob {
   }
 
   def main(args: Array[String]): Unit = {
-    if (!args.isEmpty) {
+    if (args.isEmpty) {
       logger.error("Environment not setup")
       sys.exit(-1)
     }
 
     val result = Try {
       val envValue = Environment.values.find(_.toString == args(0).split("=")(1))
+      logger.debug("Environment::::" + envValue)
+
       envValue match {
         case Some(env) => runJob(env)
         case None => throw new IllegalArgumentException("Invalid environment value")
@@ -59,14 +61,10 @@ object TokenizationJob {
       )
     }
 
-    try {
-      val env  = Environment.values.find(_.toString == args(0).split("=")(1)).get
-      runJob(env)
-    }
   }
 
   def runJob(env: Environment.Value): RunningJob = {
-    val conf: JobConf = JobConfigurationHelper.getJobConfig("WordCount", this.getClass)
+    val conf: JobConf = JobConfigurationHelper.getJobConfig("WordCount", this.getClass, env)
 
     conf.setOutputKeyClass(classOf[Text])
     conf.setOutputValueClass(classOf[IntWritable])

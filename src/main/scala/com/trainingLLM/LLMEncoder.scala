@@ -31,7 +31,7 @@ object LLMEncoder {
     private val embedding = new Text()
     private val encoding = Encodings.newDefaultEncodingRegistry().getEncoding(EncodingType.CL100K_BASE)
     private val model = MultiLayerNetworkModel.getModel
-    private val epochs: Int = ConfigLoader.getConfig(JobConfigurationHelper.env+EPOCHS).toInt
+    private val epochs: Int = ConfigLoader.getConfig(EPOCHS).toInt
 
     @throws[IOException]
     override def map(key: LongWritable, sentence: Text, output: OutputCollector[Text, Text], reporter: Reporter): Unit = {
@@ -79,41 +79,31 @@ object LLMEncoder {
   }
 
   def main(args: Array[String]): Unit = {
-    def main(args: Array[String]): Unit = {
-      if (args.length == 0) {
-        logger.error("Environment not setup")
-        sys.exit(-1)
-      }
+    if (args.length == 0) {
+      logger.error("Environment not setup")
+      sys.exit(-1)
+    }
 
-      val result = Try {
-        val envValue = Environment.values.find(_.toString == args(0).split("=")(1))
-        envValue match {
-          case Some(env) => runJob(env)
-          case None => throw new IllegalArgumentException("Invalid environment value")
-        }
+    val result = Try {
+      val envValue = Environment.values.find(_.toString == args(0).split("=")(1))
+      logger.debug("Environment::::" + envValue)
+      envValue match {
+        case Some(env) => runJob(env)
+        case None => throw new IllegalArgumentException("Invalid environment value")
       }
+    }
 
-      result match {
-        case Success(_) => logger.info("Tokenization Job ran successfully.")
-        case Failure(exception) => logger.error(
-          s"An error occurred, please check the environment arguments: ${exception.getMessage}"
-        )
-      }
+    result match {
+      case Success(_) => logger.info("Tokenization Job ran successfully.")
+      case Failure(exception) => logger.error(
+        s"An error occurred, please check the environment arguments: ${exception.getMessage}"
+      )
     }
   }
 
   def runJob(env : Environment.Value): RunningJob = {
-//    if (!new File(inputPath).exists()) {
-//      logger.error("Given Input Path is not valid, there is no file exists with in the given path")
-//      System.exit(-1)
-//    }
-//
-//    if (new File(outputPath).exists()) {
-//      logger.error("Given Output Path is already used")
-//      System.exit(-1)
-//    }
 
-    val conf = JobConfigurationHelper.getJobConfig("LLMEncoder", this.getClass)
+    val conf = JobConfigurationHelper.getJobConfig("LLMEncoder", this.getClass, env)
     conf.setOutputKeyClass(classOf[Text])
     conf.setOutputValueClass(classOf[Text])
     conf.setMapperClass(classOf[TokenizerMapper])
