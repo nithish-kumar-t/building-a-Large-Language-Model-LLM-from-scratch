@@ -9,13 +9,13 @@ import org.apache.hadoop.mapred.{FileInputFormat, FileOutputFormat, JobConf}
 import java.time.Instant
 
 object JobConfigurationHelper {
-  var env = local;
+//  var env = cloud;
 
 
-  def getJobConfig(name : String, className: Class[_]) : JobConf = {
+  def getJobConfig(jobName : String, className: Class[_], env: Environment.Value) : JobConf = {
     val conf: JobConf = new JobConf(className)
-    val outFile : String = "out-" +Instant.now().getEpochSecond.toString;
-    conf.setJobName(name)
+    val outFile : String = "output-" + jobName + "-"+Instant.now().getEpochSecond.toString;
+    conf.setJobName(jobName)
     env match {
       case Environment.local => {
         conf.set(HDFS_URL, ConfigLoader.getConfig("local.fs.defaultFS"))

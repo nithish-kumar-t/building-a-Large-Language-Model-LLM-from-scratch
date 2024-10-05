@@ -9,9 +9,11 @@ import java.io.IOException
 import scala.collection.JavaConverters._
 import com.trainingLLM.Constants._
 import com.config.{ConfigLoader, MultiLayerNetworkModel}
-import com.utilities.{JobConfigurationHelper, TrainingDataGen, VectorEmbedUtilities}
+import com.utilities.{Environment, JobConfigurationHelper, TrainingDataGen, VectorEmbedUtilities}
 import org.nd4j.linalg.factory.Nd4j
 import org.slf4j.LoggerFactory
+
+import scala.util.{Failure, Success, Try}
 
 
 /**
@@ -76,11 +78,31 @@ object LLMEncoder {
     }
   }
 
-//  def main(args: Array[String]): Unit = {
-//    runJob()
-//  }
+  def main(args: Array[String]): Unit = {
+    def main(args: Array[String]): Unit = {
+      if (args.length == 0) {
+        logger.error("Environment not setup")
+        sys.exit(-1)
+      }
 
-  def runJob(): RunningJob = {
+      val result = Try {
+        val envValue = Environment.values.find(_.toString == args(0).split("=")(1))
+        envValue match {
+          case Some(env) => runJob(env)
+          case None => throw new IllegalArgumentException("Invalid environment value")
+        }
+      }
+
+      result match {
+        case Success(_) => logger.info("Tokenization Job ran successfully.")
+        case Failure(exception) => logger.error(
+          s"An error occurred, please check the environment arguments: ${exception.getMessage}"
+        )
+      }
+    }
+  }
+
+  def runJob(env : Environment.Value): RunningJob = {
 //    if (!new File(inputPath).exists()) {
 //      logger.error("Given Input Path is not valid, there is no file exists with in the given path")
 //      System.exit(-1)

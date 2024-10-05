@@ -7,10 +7,11 @@ import org.apache.hadoop.mapred._
 
 import java.io.IOException
 import java.util
-import com.utilities.JobConfigurationHelper
+import com.utilities.{Environment, JobConfigurationHelper}
 import org.slf4j.LoggerFactory
 
 import scala.jdk.CollectionConverters.IteratorHasAsScala
+import scala.util.{Failure, Success, Try}
 
 object TokenizationJob {
   private val logger = LoggerFactory.getLogger(getClass)
@@ -38,10 +39,33 @@ object TokenizationJob {
   }
 
   def main(args: Array[String]): Unit = {
-    runJob()
+    if (!args.isEmpty) {
+      logger.error("Environment not setup")
+      sys.exit(-1)
+    }
+
+    val result = Try {
+      val envValue = Environment.values.find(_.toString == args(0).split("=")(1))
+      envValue match {
+        case Some(env) => runJob(env)
+        case None => throw new IllegalArgumentException("Invalid environment value")
+      }
+    }
+
+    result match {
+      case Success(_) => logger.info("Tokenization Job ran successfully.")
+      case Failure(exception) => logger.error(
+        s"An error occurred, please check the environment arguments: ${exception.getMessage}"
+      )
+    }
+
+    try {
+      val env  = Environment.values.find(_.toString == args(0).split("=")(1)).get
+      runJob(env)
+    }
   }
 
-  def runJob(): RunningJob = {
+  def runJob(env: Environment.Value): RunningJob = {
     val conf: JobConf = JobConfigurationHelper.getJobConfig("WordCount", this.getClass)
 
     conf.setOutputKeyClass(classOf[Text])
