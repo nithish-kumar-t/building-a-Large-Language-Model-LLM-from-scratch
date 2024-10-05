@@ -13,6 +13,8 @@ import com.trainingLLM.Constants._
 import com.config.ConfigLoader
 import org.slf4j.LoggerFactory
 
+import java.nio.file.{Files, Paths}
+
 object TokenizationJob {
   private val logger = LoggerFactory.getLogger(getClass)
   private class TokenizerMapper extends MapReduceBase with Mapper[LongWritable, Text, Text, IntWritable] {
@@ -24,7 +26,7 @@ object TokenizationJob {
     override def map(key: LongWritable, value: Text, output: OutputCollector[Text, IntWritable], reporter: Reporter): Unit = {
       value.toString.toLowerCase().split("\\W+").filter(_.nonEmpty).foreach( token => {
         val encodedString =  encoding.encode(token.toLowerCase())
-//        logger.info(token, encodedString)
+//        logger.info("Tokens Count " )
         word.set(token + "  " + encodedString.toString)
         output.collect(word, one)
       })
@@ -43,12 +45,17 @@ object TokenizationJob {
       logger.error("Usage: TokenizationJob <input path> <output path>")
       System.exit(-1)
     }
+
     val inputPath = args(0)
     val outputPath = args(1)
     runJob(inputPath, outputPath)
   }
 
   def runJob(inputPath: String, outputPath: String): RunningJob = {
+    if (!Files.exists(Paths.get(inputPath))) {
+      logger.error("Given input file is not present");
+      System.exit(-1)
+    }
     val conf: JobConf = new JobConf(this.getClass)
     conf.setJobName("WordCount")
     conf.set(HDFS_URL, ConfigLoader.getConfig(HADOOP_HDFS_URL))

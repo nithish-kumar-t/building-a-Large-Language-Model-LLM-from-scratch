@@ -13,14 +13,16 @@ lazy val root = project
       "org.apache.hadoop" % "hadoop-common" % "3.3.4",
       "org.apache.hadoop" % "hadoop-mapreduce-client-core" % "3.3.4",
       "org.apache.hadoop" % "hadoop-mapreduce-client-jobclient" % "3.3.4",
+      "org.apache.mrunit" % "mrunit" % "1.1.0" % Test classifier "hadoop2",
       "com.knuddels" % "jtokkit" % "0.6.1",
       "com.typesafe" % "config" % "1.4.3",
       "org.deeplearning4j" % "deeplearning4j-core" % "1.0.0-M2.1", // Latest version as of now
       "org.deeplearning4j" % "deeplearning4j-nlp" % "1.0.0-M2.1", // NLP support
-      "org.nd4j" % "nd4j-native-platform" % "1.0.0-M2.1", // classifier "macosx-aarch64", // For M1/M2/M3 chips
+      "org.nd4j" % "nd4j-native-platform" % "1.0.0-M2.1",
       "org.slf4j" % "slf4j-simple" % "2.0.13", // Optional logging
       "org.scalatest" %% "scalatest" % "3.2.14" % Test,
-      "junit" % "junit" % "4.13.2" % Test
+      "junit" % "junit" % "4.13.2" % Test,
+      "org.mockito" %% "mockito-scala" % "1.17.7" % Test
     ),
 
     assembly / assemblyMergeStrategy := {

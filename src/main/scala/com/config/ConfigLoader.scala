@@ -11,5 +11,5 @@ object ConfigLoader {
   def getConfig(key : String) : String = {
     config.getString(key)
   }
-  
 }
+

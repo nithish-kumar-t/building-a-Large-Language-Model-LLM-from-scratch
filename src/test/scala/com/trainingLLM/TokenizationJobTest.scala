@@ -1,5 +1,5 @@
 package com.trainingLLM
 
-class TrainingMapReducer {
+class TokenizationJobTest {
 
 }
