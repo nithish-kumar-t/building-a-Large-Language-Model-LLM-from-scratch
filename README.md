@@ -40,6 +40,41 @@ git clone git@github.com:nithish-kumar-t/building-a-Large-Language-Model-LLM-fro
 ```
 cd building-a-Large-Language-Model-LLM-from-scratch
 ```
+3) update the jars
+```
+sbt clean update
+```
+
+4) Create fat jat using assembly
+```
+sbt assembly
+# This will create a fat Jar
+```
+
+5) we can then run UT's and FT's using below 
+```
+sbt test
+```
+
+6) Our application may contain multiple mains so, to check the correct main
+```
+➜building-a-Large-Language-Model-LLM-from-scratch git:(feature) ✗ sbt
+[info] started sbt server
+sbt:LLM-hw1-jar>
+sbt:LLM-hw1-jar> show discoveredMainClasses
+* com.trainingLLM.LLMEncoder com.trainingLLM.LLMEncoder
+* com.trainingLLM.TokenizationJob
+```
+
+7) Create fat jat using assembly
+```
+hadoop jar <JarName> <Method to run> <environment>
+eg: hadoop jar target/scala-2.13/llm-hw1.jar com.trainingLLM.TokenizationJob env=local
+```
+
+
+##  Project structure
+
 
 
 
