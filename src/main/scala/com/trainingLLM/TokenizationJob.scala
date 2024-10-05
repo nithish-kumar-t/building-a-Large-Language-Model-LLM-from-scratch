@@ -2,18 +2,15 @@ package com.trainingLLM
 
 import com.knuddels.jtokkit.Encodings
 import com.knuddels.jtokkit.api.EncodingType
-import org.apache.hadoop.fs.Path
 import org.apache.hadoop.io._
 import org.apache.hadoop.mapred._
 
 import java.io.IOException
 import java.util
-import scala.collection.JavaConverters._
-import com.trainingLLM.Constants._
-import com.config.ConfigLoader
+import com.utilities.JobConfigurationHelper
 import org.slf4j.LoggerFactory
 
-import java.nio.file.{Files, Paths}
+import scala.jdk.CollectionConverters.IteratorHasAsScala
 
 object TokenizationJob {
   private val logger = LoggerFactory.getLogger(getClass)
@@ -41,26 +38,11 @@ object TokenizationJob {
   }
 
   def main(args: Array[String]): Unit = {
-    if (args.length != 2) {
-      logger.error("Usage: TokenizationJob <input path> <output path>")
-      System.exit(-1)
-    }
-
-    val inputPath = args(0)
-    val outputPath = args(1)
-    runJob(inputPath, outputPath)
+    runJob()
   }
 
-  def runJob(inputPath: String, outputPath: String): RunningJob = {
-    if (!Files.exists(Paths.get(inputPath))) {
-      logger.error("Given input file is not present");
-      System.exit(-1)
-    }
-    val conf: JobConf = new JobConf(this.getClass)
-    conf.setJobName("WordCount")
-    conf.set(HDFS_URL, ConfigLoader.getConfig(HADOOP_HDFS_URL))
-    conf.set(MAX_SPLIT_SIZE_PARAM, ConfigLoader.getConfig(HADOOP_MAX_SPLIT_SIZE_PARAM))
-    conf.set(MAP_REDUCE_JOB_REDUCERS, ConfigLoader.getConfig(HADOOP_MAP_REDUCE_JOB_REDUCERS))
+  def runJob(): RunningJob = {
+    val conf: JobConf = JobConfigurationHelper.getJobConfig("WordCount", this.getClass)
 
     conf.setOutputKeyClass(classOf[Text])
     conf.setOutputValueClass(classOf[IntWritable])
@@ -69,8 +51,6 @@ object TokenizationJob {
     conf.setReducerClass(classOf[IntSumReducer])
     conf.setInputFormat(classOf[TextInputFormat])
     conf.setOutputFormat(classOf[TextOutputFormat[Text, IntWritable]])
-    FileInputFormat.setInputPaths(conf, new Path(inputPath))
-    FileOutputFormat.setOutputPath(conf, new Path(outputPath))
     JobClient.runJob(conf)
   }
 }

@@ -7,9 +7,6 @@ import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 
 class TrainingDataTest extends AnyFlatSpec with Matchers{
 
-//  sys.env.("", "")
-  sys.env += ("MY_ENV" -> "test")
-
   "The createInputTokensAndOutputLabels method" should "correctly generate input and output labels" in {
     val bufferedData: Array[Integer] = Array(1, 2, 3, 4, 5)
     val (features, labels) = TrainingDataGen.createInputTokensAndOutputLabels(bufferedData)

@@ -2,15 +2,14 @@ package com.trainingLLM
 
 import com.knuddels.jtokkit.Encodings
 import com.knuddels.jtokkit.api.EncodingType
-import org.apache.hadoop.fs.Path
 import org.apache.hadoop.io._
 import org.apache.hadoop.mapred._
 
-import java.io.{File, IOException}
+import java.io.IOException
 import scala.collection.JavaConverters._
 import com.trainingLLM.Constants._
 import com.config.{ConfigLoader, MultiLayerNetworkModel}
-import com.utilities.{TrainingDataGen, VectorEmbedUtilities}
+import com.utilities.{JobConfigurationHelper, TrainingDataGen, VectorEmbedUtilities}
 import org.nd4j.linalg.factory.Nd4j
 import org.slf4j.LoggerFactory
 
@@ -30,7 +29,7 @@ object LLMEncoder {
     private val embedding = new Text()
     private val encoding = Encodings.newDefaultEncodingRegistry().getEncoding(EncodingType.CL100K_BASE)
     private val model = MultiLayerNetworkModel.getModel
-    private val epochs: Int = ConfigLoader.getConfig(EPOCHS).toInt
+    private val epochs: Int = ConfigLoader.getConfig(JobConfigurationHelper.env+EPOCHS).toInt
 
     @throws[IOException]
     override def map(key: LongWritable, sentence: Text, output: OutputCollector[Text, Text], reporter: Reporter): Unit = {
@@ -77,33 +76,22 @@ object LLMEncoder {
     }
   }
 
-  def main(args: Array[String]): Unit = {
-    if (args.length != 2) {
-      logger.error("Usage: TokenizationJob <input path> <output path>")
-      System.exit(-1)
-    }
-    val inputPath = args(0)
-    val outputPath = args(1)
-    runJob(inputPath, outputPath)
-  }
+//  def main(args: Array[String]): Unit = {
+//    runJob()
+//  }
 
-  def runJob(inputPath: String, outputPath: String): RunningJob = {
-    if (!new File(inputPath).exists()) {
-      logger.error("Given Input Path is not valid, there is no file exists with in the given path")
-      System.exit(-1)
-    }
+  def runJob(): RunningJob = {
+//    if (!new File(inputPath).exists()) {
+//      logger.error("Given Input Path is not valid, there is no file exists with in the given path")
+//      System.exit(-1)
+//    }
+//
+//    if (new File(outputPath).exists()) {
+//      logger.error("Given Output Path is already used")
+//      System.exit(-1)
+//    }
 
-    if (new File(outputPath).exists()) {
-      logger.error("Given Output Path is already used")
-      System.exit(-1)
-    }
-
-    val conf = new JobConf(this.getClass)
-    conf.setJobName("WordCount")
-    conf.set(HDFS_URL, ConfigLoader.getConfig(HADOOP_HDFS_URL))
-    conf.set(MAX_SPLIT_SIZE_PARAM, ConfigLoader.getConfig(HADOOP_MAX_SPLIT_SIZE_PARAM))
-    conf.set(MAP_REDUCE_JOB_REDUCERS, ConfigLoader.getConfig(HADOOP_MAP_REDUCE_JOB_REDUCERS))
-
+    val conf = JobConfigurationHelper.getJobConfig("LLMEncoder", this.getClass)
     conf.setOutputKeyClass(classOf[Text])
     conf.setOutputValueClass(classOf[Text])
     conf.setMapperClass(classOf[TokenizerMapper])
@@ -111,8 +99,6 @@ object LLMEncoder {
     conf.setReducerClass(classOf[IntSumReducer])
     conf.setInputFormat(classOf[TextInputFormat])
     conf.setOutputFormat(classOf[TextOutputFormat[Text, Text]])
-    FileInputFormat.setInputPaths(conf, new Path(inputPath))
-    FileOutputFormat.setOutputPath(conf, new Path(outputPath))
     JobClient.runJob(conf)
   }
 }

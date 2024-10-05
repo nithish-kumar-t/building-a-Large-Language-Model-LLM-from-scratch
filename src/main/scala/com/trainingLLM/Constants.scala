@@ -8,7 +8,7 @@ object Constants {
   val HADOOP_HDFS_URL: String = "hadoop." + HDFS_URL
   val HADOOP_MAP_REDUCE_JOB_REDUCERS: String = "hadoop." + MAP_REDUCE_JOB_REDUCERS
   val HADOOP_MAX_SPLIT_SIZE_PARAM: String = "hadoop." + MAX_SPLIT_SIZE_PARAM
-  val EPOCHS: String = "hadoop.epochs"
+  val EPOCHS: String = ".epochs"
 
   // Other Application Constants
   val LOGGING_LEVEL: String = "INFO"
