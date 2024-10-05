@@ -17,18 +17,18 @@ object VectorEmbedUtilities {
 
   def calculateAverage(iterator: java.util.Iterator[Text]): Array[Float] = {
     // Initialize variables to store sum and count of arrays
-    val dynamicArray = ArrayBuffer[Float]()
     val it:Array[Text] = iterator.asScala.toArray;
     val count = it.length
+    val dynamicArray = ArrayBuffer[Float]()
 
     it.foreach(item => {
       val currentArray = parseArray(item)
 
       if (dynamicArray.isEmpty) {
         dynamicArray.addAll(currentArray)
+      } else {
+        dynamicArray.indices.foreach(i => dynamicArray(i) += currentArray(i))
       }
-
-      dynamicArray.indices.foreach(i => dynamicArray(i) + currentArray(i))
     })
     dynamicArray.map(dim => dim/count).toArray
   }
