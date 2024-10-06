@@ -10,12 +10,12 @@ object MultiLayerNetworkModel {
   val config: MultiLayerConfiguration = new NeuralNetConfiguration.Builder()
     .list()
     .layer(new EmbeddingLayer.Builder()
-      .nIn(100_001) // +1 to include padding token if necessary
+      .nIn(200_000)
       .nOut(100) // Embedding dimension
       .activation(Activation.IDENTITY) // No activation function
       .build())
     .layer(new OutputLayer.Builder(LossFunctions.LossFunction.SPARSE_MCXENT) // Sparse cross-entropy for classification
-      .nIn(100_000)
+      .nIn(200_000)
       .nOut(100) // Output is a probability distribution over the vocabulary
       .activation(Activation.SOFTMAX) // Softmax for next word prediction
       .build())

@@ -11,39 +11,45 @@
 
 This project focussed on implementing an LLM encoder using parallel distributed computations in the cloud, using Hadoop MapReduce functionality and deploying the application on AWS Elastic MapReduce (EMR).
 
+<!-- <a href="http://www.youtube.com/watch?feature=player_embedded&v=YOUTUBE_VIDEO_ID_HERE
+" target="_blank"><img src="http://img.youtube.com/vi/OwJqwkWCNmI/0.jpg" 
+alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" /></a> -->
+
+[Youtube Video Link](https://youtu.be/OwJqwkWCNmI)
+
 ##  Project structure
 
 1. **This project consists of 2 parts**:
 
-    a. First is a simple word counter Map reduce program.
-    
-    b. Second is a MapReduce implementation of LLM encoder, this will be trained over a huge corpus of input data and will generate vector embeddings of words.
+   a. First is a simple word counter Map reduce program.
+
+   b. Second is a MapReduce implementation of LLM encoder, this will be trained over a huge corpus of input data and will generate vector embeddings of words.
 
 2. Dataset used for training the model [Wikipedia Text](https://huggingface.co/datasets/Daniel-Saeedi/wikipedia/blob/main/wikipedia-10.txt).
 
-3. For the first part we are 
+3. For the first part we are
 
 4. For the encoder part, I'm dividing the data into 256MB chuncks, where each shard is handle bt a mapper and pass over that to a reducer.
 
-    a. For each Mapper we are splitting the data into each sentence and encoding the sentence using Jtokkit to generate Byte-Pair encodings of words.
+   a. For each Mapper we are splitting the data into each sentence and encoding the sentence using Jtokkit to generate Byte-Pair encodings of words.
 
-    b. We are again creating features and output labels using the tockenized sentence by sliding each word, we are mapping the current word as a prediction to previous sentence.
+   b. We are again creating features and output labels using the tockenized sentence by sliding each word, we are mapping the current word as a prediction to previous sentence.
 
-    c. Eg: "We are from UIC" => converting into tokens => [123, 23, 45, 12, 49, 11] => features = [123, 23, 45, 12, 49], labels = [23, 45, 12, 49, 11]
+   c. Eg: "We are from UIC" => converting into tokens => [123, 23, 45, 12, 49, 11] => features = [123, 23, 45, 12, 49], labels = [23, 45, 12, 49, 11]
 
    ![image](https://github.com/user-attachments/assets/09976454-5f4a-4769-8721-1fa9cb14ec2d)
-    
-    d.The model is getting trained using this feastures and labels data.
-    
-    e. Once the model is trained for each shard, we are mapping the input words to the respective vectors that are getting from the model.
 
-    f. I'm seria;izing the vector embedding which is in the form is **INDArray** to **TextWritable**. 
-   
+   d.The model is getting trained using this feastures and labels data.
+
+   e. Once the model is trained for each shard, we are mapping the input words to the respective vectors that are getting from the model.
+
+   f. I'm seria;izing the vector embedding which is in the form is **INDArray** to **TextWritable**.
+
 5. The Reducer receiced the sorted data as the input and will do the processing.
 
-    a. The Reducer first deserializing the input I.e. the IteratorOf[TextWtitable] it received into Itetator[Array] 
-    
-    b. After this conversion we are averaging all the embeddings of a word to one, this will reduce the Noice and can have better Contextual Understanding.
+   a. The Reducer first deserializing the input I.e. the IteratorOf[TextWtitable] it received into Itetator[Array]
+
+   b. After this conversion we are averaging all the embeddings of a word to one, this will reduce the Noice and can have better Contextual Understanding.
 
 
 
@@ -95,7 +101,7 @@ sbt assembly
 # This will create a fat Jar
 ```
 
-5) we can then run UT's and FT's using below 
+5) we can then run UT's and FT's using below
 ```
 sbt test
 ```
@@ -123,7 +129,7 @@ eg: hadoop jar target/scala-2.13/llm-hw1.jar com.trainingLLM.TokenizationJob env
  <img width="244" alt="image" src="https://github.com/user-attachments/assets/187d514d-0309-47f1-91ca-e031e87b1936">
 
 
-2) Start a new cluster in AWS EMR, use default configuration, 
+2) Start a new cluster in AWS EMR, use default configuration,
 
 
 3) After a cluster is created open the cluster and we can add our MR job as steps. It will show like below, select the Jar from your s3 and give env values.
@@ -168,17 +174,25 @@ Follow these steps to execute the project:
 
 3. **MapReduce Execution**:
 
-    a. Run the TockenizeMapReduce Job to generate tokens for each word and it's count.
-    
-    b. Run the LLMEncoder job to create vector embeddings, it will create vector embedings and write that in a file.
+   a. Run the TockenizeMapReduce Job to generate tokens for each word and it's count.
+
+   b. Run the LLMEncoder job to create vector embeddings, it will create vector embedings and write that in a file.
 
 4. **Results**: Examine the results obtained from the MapReduce jobs.
 
-    a. Word counter should output the word, it's Unique token and the count of the word.
-    
-    b. LLM Encoder should output the vector embeddings, word and it's embedding.
+   a. Word counter should output the word, it's Unique token and the count of the word.
+
+   b. LLM Encoder should output the vector embeddings, word and it's embedding.
 
 5. **Deployment on AWS EMR**: If required, deploy the project on AWS EMR to train more data.
+
+
+## Unit / Regression Testing
+
+**Code coverage report**
+
+
+<img width="597" alt="Screenshot 2024-10-05 at 9 47 50 PM" src="https://github.com/user-attachments/assets/08e596ea-2c3a-410a-bb25-b3e387d95027">
 
 
 

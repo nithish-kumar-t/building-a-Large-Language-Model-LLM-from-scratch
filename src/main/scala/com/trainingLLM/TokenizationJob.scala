@@ -13,6 +13,11 @@ import org.slf4j.LoggerFactory
 import scala.jdk.CollectionConverters.IteratorHasAsScala
 import scala.util.{Failure, Success, Try}
 
+/**
+ * Hadoop MAP-REDUCE Implementation for finding word count in a huge corpus of text
+ * We are dividing the data into multiple shards, and then after ordering them, finally
+ * finding the word-count at reducer.
+ */
 object TokenizationJob {
   private val logger = LoggerFactory.getLogger(getClass)
   private class TokenizerMapper extends MapReduceBase with Mapper[LongWritable, Text, Text, IntWritable] {
@@ -20,6 +25,10 @@ object TokenizationJob {
     private val word = new Text()
     private val encoding = Encodings.newDefaultEncodingRegistry().getEncoding(EncodingType.CL100K_BASE)
 
+    /**
+     * Implementation of mapper functionality,
+     * Extracting words from the shard and storing the key-value pairs in collector
+     */
     @throws[IOException]
     override def map(key: LongWritable, value: Text, output: OutputCollector[Text, IntWritable], reporter: Reporter): Unit = {
       value.toString.toLowerCase().split("\\W+").filter(_.nonEmpty).foreach( token => {
@@ -31,6 +40,11 @@ object TokenizationJob {
     }
   }
 
+  /**
+   * Implementation of Reducer functionality,
+   * Here we for each reducer we are receiving a sorted list of similar words and it's an IntIterable
+   * we need to count that iterable, which is the count of the word.
+   */
   private class IntSumReducer extends MapReduceBase with Reducer[Text, IntWritable, Text, IntWritable] {
     override def reduce(key: Text, values: util.Iterator[IntWritable], output: OutputCollector[Text, IntWritable], reporter: Reporter): Unit = {
       val sum = values.asScala.map(_.get()).sum
@@ -45,12 +59,14 @@ object TokenizationJob {
     }
 
     val result = Try {
-      val envValue = Environment.values.find(_.toString == args(0).split("=")(1))
+      val envValue = Environment.values.find(_.toString == args(0).split("=")(1)).get
       logger.debug("Environment::::" + envValue)
 
-      envValue match {
-        case Some(env) => runJob(env)
-        case None => throw new IllegalArgumentException("Invalid environment value")
+      if (Environment.values.contains(envValue)) {
+        runJob(envValue)
+      }
+      else {
+        logger.error("The given Env value is Invalid, please check again and retry")
       }
     }
 
