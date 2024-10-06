@@ -5,7 +5,13 @@ import org.apache.hadoop.io.Text
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
 
+
 object VectorEmbedUtilities {
+
+  /**
+  * @param text 
+  * @return De-serialized the vector embddings, which are in text format.
+  */
   private def parseArray(text: Text): Array[Float] = {
     // Convert Text to String and parse it to Array[Float]
     text.toString
@@ -15,6 +21,10 @@ object VectorEmbedUtilities {
       .map(_.trim.toFloat) // Trim whitespace and convert to Float
   }
 
+  /**
+  * @param iterator 
+  * @return embeddings, which are averaged, to reduce noice
+  */
   def calculateAverage(iterator: java.util.Iterator[Text]): Array[Float] = {
     // Initialize variables to store sum and count of arrays
     val it:Array[Text] = iterator.asScala.toArray;
