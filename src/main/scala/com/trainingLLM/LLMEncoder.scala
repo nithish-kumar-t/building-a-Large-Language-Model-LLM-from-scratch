@@ -17,7 +17,8 @@ import scala.util.{Failure, Success, Try}
 
 
 /**
- * MAP-REDUCE Implementation of training a huge tokenized text over a model  and generating it's vector embeddigs of each word.
+ * MAP-REDUCE Implementation of training a huge tokenized text over a model
+ * and generating it's vector embeddings of each word.
  */
 object LLMEncoder {
   private val logger = LoggerFactory.getLogger(getClass)
@@ -68,7 +69,8 @@ object LLMEncoder {
   }
 
   /**
-   * This Reducer implementation takes, key value pair from the mapper, for similar words it is averaging the vector embeddings.
+   * This Reducer implementation takes, key value pair from the mapper, <Word , Embedding>
+   * for similar words it is averaging the vector embeddings.
    *
    */
   class EmbeddingAverageReducer extends MapReduceBase with Reducer[Text, Text, Text, Text] {
@@ -79,17 +81,20 @@ object LLMEncoder {
   }
 
   def main(args: Array[String]): Unit = {
-    if (args.length == 0) {
+    if (args.isEmpty) {
       logger.error("Environment not setup")
       sys.exit(-1)
     }
 
     val result = Try {
-      val envValue = Environment.values.find(_.toString == args(0).split("=")(1))
-      logger.debug("Environment::::" + envValue)
-      envValue match {
-        case Some(env) => runJob(env)
-        case None => logger.error("Invalid environment value")
+      val envValue: Environment.Value = Environment.values.find(_.toString == args(0).split("=")(1)).get
+      logger.info("Environment::::" + envValue)
+
+      if (Environment.values.contains(envValue)) {
+        runJob(envValue)
+      }
+      else {
+        logger.error("The given Env value is Invalid, please check again and retry")
       }
     }
 
@@ -99,10 +104,10 @@ object LLMEncoder {
         s"An error occurred, please check the environment arguments: ${exception.getMessage}"
       )
     }
+
   }
 
   def runJob(env : Environment.Value): RunningJob = {
-
     val conf = JobConfigurationHelper.getJobConfig("LLMEncoder", this.getClass, env)
     conf.setOutputKeyClass(classOf[Text])
     conf.setOutputValueClass(classOf[Text])

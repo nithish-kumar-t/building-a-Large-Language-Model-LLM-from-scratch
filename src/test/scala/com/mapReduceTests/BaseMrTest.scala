@@ -29,10 +29,12 @@ class BaseMrTest extends AnyFlatSpec with Matchers with BeforeAndAfter{
 
   after {
     //delete the files in the output directory after the completion of the program
-    Files.list(directory).forEach(file => {
-      if (!Files.isRegularFile(file)) {
-        Files.walk(file).sorted(java.util.Comparator.reverseOrder()).forEach(Files.delete)
-      }
-    })
+    if (Files.exists(directory) && Files.isDirectory(directory)) {
+      Files.list(directory).forEach(file => {
+        if (!Files.isRegularFile(file)) {
+          Files.walk(file).sorted(java.util.Comparator.reverseOrder()).forEach(Files.delete)
+        }
+      })
+    }
   }
 }
