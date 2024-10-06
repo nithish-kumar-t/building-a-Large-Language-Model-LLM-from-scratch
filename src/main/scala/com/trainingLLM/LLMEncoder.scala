@@ -17,7 +17,8 @@ import scala.util.{Failure, Success, Try}
 
 
 /**
- * MAP-REDUCE Implementation of training a huge tokenized text over a model  and generating it's vector embeddigs of each word.
+ * MAP-REDUCE Implementation of training a huge tokenized text over a model
+ * and generating it's vector embeddings of each word.
  */
 object LLMEncoder {
   private val logger = LoggerFactory.getLogger(getClass)
@@ -35,7 +36,7 @@ object LLMEncoder {
 
     @throws[IOException]
     override def map(key: LongWritable, sentence: Text, output: OutputCollector[Text, Text], reporter: Reporter): Unit = {
-      if (sentence.toString.isEmpty) {
+      if (sentence.toString.trim.isEmpty) {
         logger.debug("Current sentence is Invalid")
         return
       }
@@ -44,12 +45,21 @@ object LLMEncoder {
       val tokens = encoding.encode(sentence.toString)
       logger.info("Tokens Count " + tokens.size())
 
+      if (tokens.size() <= 1) {
+        logger.debug("Tokens not sufficient to train")
+        return
+      }
 
       // 2. Generating input and output labels,
       val (features, labels) = TrainingDataGen.createInputTokensAndOutputLabels(tokens.asScala.toArray)
       val inputFeatures = Nd4j.create(features)
       val outputLabels = Nd4j.create(labels)
 
+
+      if (features.length == 0 || labels.length == 0) {
+        logger.debug("Tokens not generated for this shard")
+        return
+      }
 
       // 3. Training the model using multiple epochs,
       Iterator.range(0, epochs).foreach { _ =>
@@ -68,7 +78,8 @@ object LLMEncoder {
   }
 
   /**
-   * This Reducer implementation takes, key value pair from the mapper, for similar words it is averaging the vector embeddings.
+   * This Reducer implementation takes, key value pair from the mapper, <Word , Embedding>
+   * for similar words it is averaging the vector embeddings.
    *
    */
   class EmbeddingAverageReducer extends MapReduceBase with Reducer[Text, Text, Text, Text] {
@@ -79,17 +90,20 @@ object LLMEncoder {
   }
 
   def main(args: Array[String]): Unit = {
-    if (args.length == 0) {
+    if (args.isEmpty) {
       logger.error("Environment not setup")
       sys.exit(-1)
     }
 
     val result = Try {
-      val envValue = Environment.values.find(_.toString == args(0).split("=")(1))
-      logger.debug("Environment::::" + envValue)
-      envValue match {
-        case Some(env) => runJob(env)
-        case None => logger.error("Invalid environment value")
+      val envValue: Environment.Value = Environment.values.find(_.toString == args(0).split("=")(1)).get
+      logger.info("Environment::::" + envValue)
+
+      if (Environment.values.contains(envValue)) {
+        runJob(envValue)
+      }
+      else {
+        logger.error("The given Env value is Invalid, please check again and retry")
       }
     }
 
@@ -99,10 +113,10 @@ object LLMEncoder {
         s"An error occurred, please check the environment arguments: ${exception.getMessage}"
       )
     }
+
   }
 
   def runJob(env : Environment.Value): RunningJob = {
-
     val conf = JobConfigurationHelper.getJobConfig("LLMEncoder", this.getClass, env)
     conf.setOutputKeyClass(classOf[Text])
     conf.setOutputValueClass(classOf[Text])
