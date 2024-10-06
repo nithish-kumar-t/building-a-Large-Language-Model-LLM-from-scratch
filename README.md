@@ -185,7 +185,8 @@ Follow these steps to execute the project:
 
 **Code coverage report**
 
-![img.png](img.png)
+
+<img width="597" alt="Screenshot 2024-10-05 at 9 47 50 PM" src="https://github.com/user-attachments/assets/08e596ea-2c3a-410a-bb25-b3e387d95027">
 
 
 
