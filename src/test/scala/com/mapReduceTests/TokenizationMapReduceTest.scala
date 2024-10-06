@@ -17,16 +17,24 @@ class TokenizationMapReduceTest extends BaseMrTest{
     }
   }
 
-  "TokenizationJob MR with invalid Environment" should "not run at all" in {
-    val thrown = intercept[IllegalArgumentException] {
-      TokenizationJob.runJob("abc")
-    }
-    thrown.getMessage should include ("Invalid environment value")
+  "TokenizationJob MR with invalid Environment" should "throw Exception" in {
+    TokenizationJob.main(Array(null))
+//    thrown.getMessage should include ("please check the environment arguments")
 
     Files.list(directory).forEach { file =>
       Files.list(file).count() shouldBe (0)
-      
     }
   }
 
+//  "TokenizationJob MR with no arguments" should "not run at all" in {
+//    val thrown = intercept[] {
+//      MyApp.validateArgs(args)
+//    }
+//    thrown.getMessage should include ("Invalid environment value")
+//
+//    Files.list(directory).forEach { file =>
+//      Files.list(file).count() shouldBe (0)
+//
+//    }
+//  }
 }

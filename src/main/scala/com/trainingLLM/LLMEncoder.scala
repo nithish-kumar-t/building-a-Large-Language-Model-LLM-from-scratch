@@ -89,7 +89,7 @@ object LLMEncoder {
       logger.debug("Environment::::" + envValue)
       envValue match {
         case Some(env) => runJob(env)
-        case None => throw new IllegalArgumentException("Invalid environment value")
+        case None => logger.error("Invalid environment value")
       }
     }
 

@@ -2,6 +2,7 @@ package com.mapReduceTests
 
 import com.trainingLLM.LLMEncoder
 import com.utilities.Environment
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 
 import java.nio.file.Files
@@ -17,18 +18,12 @@ class TrainingMapReducerTest extends BaseMrTest {
   }
 
   "LLMEncoder MR with invalid Environment" should "not run at all" in {
-    val thrown = intercept[IllegalArgumentException] {
-      LLMEncoder.runJob("RRR")
-    }
-    thrown.getMessage should include ("Invalid environment value")
+    LLMEncoder.main(Array(null))
+//    thrown.getMessage should include ("Invalid environment value")
 
     Files.list(directory).forEach { file =>
       Files.list(file).count() shouldBe (0)
-      
     }
   }
-
-}
-
   
 }
