@@ -26,7 +26,7 @@ object LLMEncoder {
    * This Mapper implementation is used to convert sentences into tokens, and outputs word, with its token and Vector-embedding
    *
    */
-  class TokenizerMapper extends MapReduceBase with Mapper[LongWritable, Text, Text, Text] {
+  class ModelTrainMapper extends MapReduceBase with Mapper[LongWritable, Text, Text, Text] {
     private val word = new Text()
     private val embedding = new Text()
     private val encoding = Encodings.newDefaultEncodingRegistry().getEncoding(EncodingType.CL100K_BASE)
@@ -71,7 +71,7 @@ object LLMEncoder {
    * This Reducer implementation takes, key value pair from the mapper, for similar words it is averaging the vector embeddings.
    *
    */
-  class IntSumReducer extends MapReduceBase with Reducer[Text, Text, Text, Text] {
+  class EmbeddingAverageReducer extends MapReduceBase with Reducer[Text, Text, Text, Text] {
     override def reduce(key: Text, values: java.util.Iterator[Text], output: OutputCollector[Text, Text], reporter: Reporter): Unit = {
       val average = VectorEmbedUtilities.calculateAverage(values)
       output.collect(key, new Text(average.mkString("[", ", ", "]")))
@@ -106,9 +106,9 @@ object LLMEncoder {
     val conf = JobConfigurationHelper.getJobConfig("LLMEncoder", this.getClass, env)
     conf.setOutputKeyClass(classOf[Text])
     conf.setOutputValueClass(classOf[Text])
-    conf.setMapperClass(classOf[TokenizerMapper])
-    conf.setCombinerClass(classOf[IntSumReducer])
-    conf.setReducerClass(classOf[IntSumReducer])
+    conf.setMapperClass(classOf[ModelTrainMapper])
+    conf.setCombinerClass(classOf[EmbeddingAverageReducer])
+    conf.setReducerClass(classOf[EmbeddingAverageReducer])
     conf.setInputFormat(classOf[TextInputFormat])
     conf.setOutputFormat(classOf[TextOutputFormat[Text, Text]])
     JobClient.runJob(conf)
