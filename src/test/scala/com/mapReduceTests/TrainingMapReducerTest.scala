@@ -15,4 +15,20 @@ class TrainingMapReducerTest extends BaseMrTest {
       Files.list(file).count() shouldBe (4)
     }
   }
+
+  "LLMEncoder MR with invalid Environment" should "not run at all" in {
+    val thrown = intercept[IllegalArgumentException] {
+      LLMEncoder.runJob("RRR")
+    }
+    thrown.getMessage should include ("Invalid environment value")
+
+    Files.list(directory).forEach { file =>
+      Files.list(file).count() shouldBe (0)
+      
+    }
+  }
+
+}
+
+  
 }
