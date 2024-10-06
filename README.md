@@ -11,6 +11,12 @@
 
 This project focussed on implementing an LLM encoder using parallel distributed computations in the cloud, using Hadoop MapReduce functionality and deploying the application on AWS Elastic MapReduce (EMR).
 
+<!-- <a href="http://www.youtube.com/watch?feature=player_embedded&v=YOUTUBE_VIDEO_ID_HERE
+" target="_blank"><img src="http://img.youtube.com/vi/OwJqwkWCNmI/0.jpg" 
+alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" /></a> -->
+
+[Youtube Video Link](https://youtu.be/OwJqwkWCNmI)
+
 ##  Project structure
 
 1. **This project consists of 2 parts**:
